@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Ensure we have some semi-random machine-id
 if [ ! -f  /etc/machine-id ]; then
     dd if=/dev/urandom status=none bs=16 count=1 | md5sum | cut -d' ' -f1 > /etc/machine-id
@@ -26,9 +28,9 @@ cp /etc/resolv.conf /etc/resolv.conf.original
 sed -e "s/${docker_embedded_dns_ip}/${docker_host_ip}/g" /etc/resolv.conf.original >/etc/resolv.conf
 
 # write config from environment variable
-if [ ! -z "$K0S_CONFIG" ]; then
+if [ -n "${K0S_CONFIG}" ]; then
   mkdir -p /etc/k0s
-  echo -n "$K0S_CONFIG" > /etc/k0s/config.yaml
+  printf "%s" "${K0S_CONFIG}" > /etc/k0s/config.yaml
 fi
 
-exec $@
+exec "$@"
